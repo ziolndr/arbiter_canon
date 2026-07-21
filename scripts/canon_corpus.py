@@ -197,7 +197,19 @@ def parse_usfm(path: Path) -> list[Verse]:
     for (chapter_number, verse_number), parts in sorted(chunks.items()):
         text = strip_usfm(" ".join(parts))
         if not text:
-            raise ValueError(f"Blank verse after USFM cleanup: {meta['name']} {chapter_number}:{verse_number}")
+            # WEBP represents these omitted textual variants as footnote-only
+            # verse markers. Footnotes are deliberately excluded from CANON's
+            # searchable scripture text, so these two empty markers are valid.
+            footnote_only_verses = {
+                ("LUK", 17, 36),
+                ("ACT", 15, 34),
+            }
+            if (code, chapter_number, verse_number) in footnote_only_verses:
+                continue
+            raise ValueError(
+                f"Blank verse after USFM cleanup: "
+                f"{meta['name']} {chapter_number}:{verse_number}"
+            )
         verses.append(Verse(
             code=code,
             book=meta["name"],
