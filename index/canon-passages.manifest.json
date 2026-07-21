@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "layer": "passage",
+  "corpus_version": "webp-9aef6aaa53e0-w5s2",
+  "count": 14061,
+  "dim": 72,
+  "dtype": "float32",
+  "use_freq": true,
+  "generated_at": "2026-07-21T06:06:47.977121+00:00",
+  "files": {
+    "vectors": "canon-passages.vectors.f32",
+    "norms": "canon-passages.norms.f32",
+    "metadata": "canon-passages.metadata.jsonl"
+  }
+}

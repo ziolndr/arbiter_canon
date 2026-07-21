@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "corpus_version": "webp-9aef6aaa53e0-w5s2",
+  "generated_at": "2026-07-21T05:31:23.298725+00:00",
+  "translation": {
+    "id": "WEBP",
+    "name": "World English Bible (Protestant)",
+    "books": 66,
+    "public_domain": true
+  },
+  "source": {
+    "url": "https://ebible.org/Scriptures/engwebp_usfm.zip",
+    "archive_sha256": "4253589697dc6b5e92695655f2f28792d50e7be7b9c8e212af4f4bd18e866c3b",
+    "text_fingerprint_sha256": "9aef6aaa53e05c72a2c27d9ac866893287b884d64b42dd515d94e28b161870df"
+  },
+  "construction": {
+    "passage_window": 5,
+    "passage_stride": 2,
+    "chapter_boundary_safe": true
+  },
+  "counts": {
+    "books": 66,
+    "chapters": 1189,
+    "verses": 31098,
+    "passages": 14061
+  },
+  "files": {
+    "verses": {
+      "path": "canon-verses.jsonl",
+      "count": 31098,
+      "sha256": "95f3e071523b554c3b766902ffc3a3bd468b66f1e95fe0a93c75d96da7e200b0"
+    },
+    "passages": {
+      "path": "canon-passages.jsonl",
+      "count": 14061,
+      "sha256": "f077c0d4436c81c1fa689f2f9679c35f8caead93c03355c8969e9b74f155f1f8"
+    },
+    "chapters": {
+      "path": "canon-chapters.jsonl",
+      "count": 1189,
+      "sha256": "5ca1b1445dbf6198fba4a866bd6106f25bf5edeac9cbaea59679f49cd44d7d8a"
+    }
+  },
+  "book_order": [
+    "Genesis",
+    "Exodus",
+    "Leviticus",
+    "Numbers",
+    "Deuteronomy",
+    "Joshua",
+    "Judges",
+    "Ruth",
+    "1 Samuel",
+    "2 Samuel",
+    "1 Kings",
+    "2 Kings",
+    "1 Chronicles",
+    "2 Chronicles",
+    "Ezra",
+    "Nehemiah",
+    "Esther",
+    "Job",
+    "Psalms",
+    "Proverbs",
+    "Ecclesiastes",
+    "Song of Solomon",
+    "Isaiah",
+    "Jeremiah",
+    "Lamentations",
+    "Ezekiel",
+    "Daniel",
+    "Hosea",
+    "Joel",
+    "Amos",
+    "Obadiah",
+    "Jonah",
+    "Micah",
+    "Nahum",
+    "Habakkuk",
+    "Zephaniah",
+    "Haggai",
+    "Zechariah",
+    "Malachi",
+    "Matthew",
+    "Mark",
+    "Luke",
+    "John",
+    "Acts",
+    "Romans",
+    "1 Corinthians",
+    "2 Corinthians",
+    "Galatians",
+    "Ephesians",
+    "Philippians",
+    "Colossians",
+    "1 Thessalonians",
+    "2 Thessalonians",
+    "1 Timothy",
+    "2 Timothy",
+    "Titus",
+    "Philemon",
+    "Hebrews",
+    "James",
+    "1 Peter",
+    "2 Peter",
+    "1 John",
+    "2 John",
+    "3 John",
+    "Jude",
+    "Revelation"
+  ]
+}

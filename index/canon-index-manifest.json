@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "corpus_version": "webp-9aef6aaa53e0-w5s2",
+  "generated_at": "2026-07-21T06:10:22.832056+00:00",
+  "dim": 72,
+  "use_freq": true,
+  "layers": {
+    "verses": {
+      "count": 31098,
+      "manifest": "canon-verses.manifest.json"
+    },
+    "passages": {
+      "count": 14061,
+      "manifest": "canon-passages.manifest.json"
+    },
+    "chapters": {
+      "count": 1189,
+      "manifest": "canon-chapters.manifest.json"
+    }
+  }
+}
