@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090908">
+  <title>CANON — Ask Scripture</title>
+  <meta name="description" content="Ask scripture. No generated answers. Only scripture, ranked by resonance.">
+  <style>
+    :root {
+      --ink:#11110f;
+      --night:#080807;
+      --night-2:#10100e;
+      --paper:#f1eee4;
+      --paper-2:#e5e0d3;
+      --bone:#d4cebf;
+      --muted:#918c80;
+      --line:rgba(238,233,220,.16);
+      --gold:#b6a477;
+      --serif:Georgia,"Times New Roman",serif;
+      --sans:Arial,Helvetica,sans-serif;
+      --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--night)}
+    body{margin:0;background:var(--night);color:var(--paper);font-family:var(--sans);min-height:100vh}
+    button,input,select{font:inherit}
+    button{color:inherit}
+    a{color:inherit}
+    #fieldCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.52;pointer-events:none}
+    .veil{position:fixed;inset:0;z-index:1;pointer-events:none;background:
+      radial-gradient(circle at 50% 18%,rgba(183,164,119,.08),transparent 30%),
+      linear-gradient(180deg,rgba(8,8,7,.2),rgba(8,8,7,.88) 58%,#080807 100%)}
+    .shell{position:relative;z-index:2;min-height:100vh}
+    .topbar{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;border-bottom:1px solid var(--line);background:rgba(8,8,7,.78);backdrop-filter:blur(18px);position:sticky;top:0;z-index:20}
+    .wordmark{font-family:var(--serif);font-size:23px;letter-spacing:.32em;margin-right:-.32em;font-weight:400}
+    .topmeta{display:flex;gap:18px;align-items:center;font:10px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+    .status-dot{width:6px;height:6px;border-radius:50%;background:#6e6b63;box-shadow:0 0 0 4px rgba(255,255,255,.03)}
+    .status-dot.ready{background:#b9ad8d;box-shadow:0 0 16px rgba(185,173,141,.42)}
+    .hero{min-height:590px;display:grid;place-items:center;padding:96px 24px 82px;border-bottom:1px solid var(--line)}
+    .hero-inner{width:min(960px,100%);text-align:center}
+    .eyebrow{font:10px/1 var(--mono);letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:24px}
+    h1{font-family:var(--serif);font-size:clamp(54px,8vw,104px);line-height:.95;font-weight:400;letter-spacing:-.055em;margin:0 0 24px}
+    .hero-copy{width:min(680px,100%);margin:0 auto 36px;color:rgba(241,238,228,.7);font:17px/1.7 var(--serif)}
+    .hero-copy strong{display:block;color:var(--paper);font-weight:400;margin-top:7px}
+    .search-box{width:min(850px,100%);margin:0 auto;border:1px solid rgba(238,233,220,.28);background:rgba(8,8,7,.76);box-shadow:0 24px 80px rgba(0,0,0,.35);text-align:left}
+    .search-row{display:grid;grid-template-columns:1fr auto;min-height:78px}
+    .search-input{width:100%;border:0;outline:0;background:transparent;color:var(--paper);font:22px/1.35 var(--serif);padding:22px 24px;min-width:0}
+    .search-input::placeholder{color:rgba(241,238,228,.35)}
+    .search-button{border:0;border-left:1px solid var(--line);background:var(--paper);color:var(--ink);padding:0 28px;min-width:138px;cursor:pointer;font:10px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;transition:background .18s ease,color .18s ease}
+    .search-button:hover{background:white}
+    .search-button:disabled{cursor:wait;background:#d2cec3;color:#6e6b63}
+    .search-controls{border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:18px;align-items:center;padding:12px 16px;flex-wrap:wrap}
+    .scope-controls{display:flex;gap:4px;flex-wrap:wrap}
+    .scope-button{border:0;background:transparent;color:var(--muted);padding:8px 10px;cursor:pointer;font:9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+    .scope-button.active{background:rgba(241,238,228,.09);color:var(--paper)}
+    .book-select{max-width:190px;border:0;border-bottom:1px solid rgba(241,238,228,.24);background:transparent;color:var(--paper);padding:7px 26px 7px 8px;outline:0;font:10px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.08em}
+    .book-select option{background:#111;color:#eee}
+    .search-note{font:9px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#77736a}
+    .recent{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:20px}
+    .recent-label{font:9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#6f6b62;margin-right:4px}
+    .recent button{border:1px solid rgba(241,238,228,.13);background:rgba(8,8,7,.45);color:#9e998e;padding:8px 11px;cursor:pointer;font:11px/1.2 var(--serif);max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .recent button:hover{color:var(--paper);border-color:rgba(241,238,228,.26)}
+    .error-banner{display:none;width:min(850px,100%);margin:18px auto 0;border:1px solid rgba(188,110,91,.45);background:rgba(94,36,24,.22);color:#dbc1b9;padding:13px 16px;text-align:left;font:11px/1.5 var(--mono)}
+    .error-banner.show{display:block}
+    .results-shell{display:none;background:var(--paper);color:var(--ink);min-height:100vh}
+    .results-shell.show{display:block}
+    .result-head{padding:28px 36px;border-bottom:1px solid rgba(17,17,15,.16);display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+    .result-query-label{font:9px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:#827c70;margin-bottom:9px}
+    .result-query{font:24px/1.35 var(--serif);max-width:760px}
+    .result-meta{font:9px/1.6 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#847e73;text-align:right;white-space:nowrap}
+    .primary-wrap{padding:50px 36px 34px;max-width:1240px;margin:0 auto}
+    .primary-grid{display:grid;grid-template-columns:92px minmax(0,1fr);border-top:1px solid var(--ink);border-bottom:1px solid rgba(17,17,15,.18)}
+    .primary-rank{padding:26px 18px 24px 0;font:11px/1 var(--mono);letter-spacing:.12em;color:#777167;border-right:1px solid rgba(17,17,15,.18)}
+    .primary-rank strong{display:block;color:var(--ink);font:32px/1 var(--serif);letter-spacing:-.04em;margin-bottom:11px;font-weight:400}
+    .primary-body{padding:25px 0 30px 28px;min-width:0}
+    .primary-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:23px}
+    .primary-ref{font:clamp(30px,4vw,52px)/1 var(--serif);letter-spacing:-.04em}
+    .primary-score{text-align:right;font:9px/1.35 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#7c766c}
+    .primary-score strong{display:block;font:28px/1 var(--serif);font-weight:400;letter-spacing:-.02em;color:var(--ink);margin-bottom:5px}
+    .verse-stack{border-top:1px solid rgba(17,17,15,.12)}
+    .verse-row{display:grid;grid-template-columns:54px minmax(0,1fr);border-bottom:1px solid rgba(17,17,15,.11);position:relative}
+    .verse-number{padding:15px 12px 15px 0;text-align:right;color:#8f897e;font:10px/1.5 var(--mono)}
+    .verse-text{padding:13px 12px 14px 18px;font:19px/1.65 var(--serif)}
+    .verse-row.strongest{background:rgba(182,164,119,.12)}
+    .verse-row.strongest::before{content:"";position:absolute;left:-28px;top:0;bottom:0;width:2px;background:var(--gold)}
+    .verse-row.strongest .verse-number{color:#695e42}
+    .primary-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+    .action-button{border:1px solid rgba(17,17,15,.25);background:transparent;color:var(--ink);padding:11px 14px;cursor:pointer;font:9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+    .action-button:hover,.action-button.active{background:var(--ink);color:var(--paper)}
+    .ranked-wrap{max-width:1240px;margin:0 auto;padding:20px 36px 90px}
+    .section-bar{display:flex;align-items:end;justify-content:space-between;gap:24px;padding:24px 0 13px;border-bottom:1px solid var(--ink)}
+    .section-title{font:12px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+    .layer-tabs{display:flex;gap:2px}
+    .layer-tab{border:0;background:transparent;color:#918b80;padding:9px 11px;cursor:pointer;font:9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+    .layer-tab.active{background:var(--ink);color:var(--paper)}
+    .field-stats{padding:11px 0 18px;display:flex;gap:20px;flex-wrap:wrap;color:#827c71;font:9px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+    .ranked-list{border-top:1px solid rgba(17,17,15,.08)}
+    .ranked-item{border-bottom:1px solid rgba(17,17,15,.13)}
+    .ranked-summary{display:grid;grid-template-columns:58px minmax(0,1fr) 100px 26px;align-items:center;min-height:66px;gap:16px;cursor:pointer;list-style:none}
+    .ranked-summary::-webkit-details-marker{display:none}
+    .rank-number{font:10px/1 var(--mono);color:#8a847a}
+    .rank-ref{font:21px/1.25 var(--serif);min-width:0}
+    .rank-sub{display:block;font:8px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#989186;margin-top:5px}
+    .rank-score{text-align:right;font:17px/1 var(--serif)}
+    .rank-score small{display:block;font:8px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#928c81;margin-top:6px}
+    .rank-toggle{font:18px/1 var(--serif);color:#8a847a;transition:transform .2s}
+    details[open] .rank-toggle{transform:rotate(45deg)}
+    .rank-detail{padding:0 0 26px 74px;max-width:980px}
+    .rank-detail .verse-text{font-size:17px}
+    .empty-field{padding:48px 0;color:#8b857a;font:14px/1.6 var(--serif)}
+    .chapter-panel{position:fixed;z-index:50;inset:0;background:rgba(4,4,4,.8);display:none;align-items:stretch;justify-content:flex-end;backdrop-filter:blur(10px)}
+    .chapter-panel.show{display:flex}
+    .chapter-sheet{width:min(720px,100%);height:100%;overflow:auto;background:var(--paper);color:var(--ink);padding:28px 34px 70px;box-shadow:-30px 0 80px rgba(0,0,0,.35)}
+    .chapter-sheet-head{display:flex;justify-content:space-between;align-items:center;gap:20px;border-bottom:1px solid var(--ink);padding-bottom:18px;margin-bottom:18px;position:sticky;top:-28px;background:var(--paper);padding-top:28px;z-index:2}
+    .chapter-title{font:36px/1 var(--serif)}
+    .chapter-close{border:0;background:transparent;color:var(--ink);font:10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+    .chapter-verses .verse-row{grid-template-columns:45px minmax(0,1fr)}
+    .chapter-verses .verse-text{font-size:17px}
+    footer{background:var(--night);color:#767168;border-top:1px solid var(--line);padding:34px 36px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font:9px/1.6 var(--mono);letter-spacing:.1em;text-transform:uppercase}
+    .loading-line{height:2px;position:fixed;z-index:60;top:75px;left:0;right:0;overflow:hidden;display:none}
+    .loading-line.show{display:block}
+    .loading-line::before{content:"";position:absolute;left:-35%;width:35%;top:0;bottom:0;background:var(--gold);animation:load 1s linear infinite}
+    @keyframes load{to{left:100%}}
+    @media(max-width:760px){
+      .topbar{height:64px;padding:0 18px}.wordmark{font-size:19px}.topmeta span:not(:last-child){display:none}.hero{padding:75px 14px 64px;min-height:520px}
+      h1{font-size:58px}.hero-copy{font-size:15px}.search-row{grid-template-columns:1fr}.search-input{font-size:19px;padding:19px}.search-button{border-left:0;border-top:1px solid var(--line);height:54px}
+      .search-controls{align-items:stretch}.scope-controls{width:100%}.scope-button{flex:1}.book-select{width:100%;max-width:none}.search-note{width:100%;text-align:center}
+      .result-head{padding:22px 16px;display:block}.result-meta{text-align:left;margin-top:12px}.primary-wrap{padding:34px 16px 22px}.primary-grid{grid-template-columns:1fr}.primary-rank{border-right:0;border-bottom:1px solid rgba(17,17,15,.16);padding:13px 0}.primary-rank strong{display:inline;font-size:18px;margin-right:6px}.primary-body{padding:22px 0}.primary-top{display:block}.primary-score{text-align:left;margin-top:14px}.primary-score strong{display:inline;font-size:21px;margin-right:8px}.verse-row{grid-template-columns:39px minmax(0,1fr)}.verse-text{font-size:17px;padding-left:12px}.verse-row.strongest::before{left:-16px}
+      .ranked-wrap{padding:18px 16px 64px}.section-bar{display:block}.layer-tabs{margin-top:14px;overflow:auto}.ranked-summary{grid-template-columns:38px minmax(0,1fr) 70px 18px;gap:8px}.rank-ref{font-size:17px}.rank-detail{padding-left:46px}.chapter-sheet{padding:18px 16px 54px}.chapter-sheet-head{top:-18px;padding-top:18px}.chapter-title{font-size:28px}
+      footer{padding:28px 18px}.loading-line{top:63px}
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fieldCanvas" aria-hidden="true"></canvas>
+  <div class="veil" aria-hidden="true"></div>
+  <div class="loading-line" id="loadingLine"></div>
+  <div class="shell">
+    <header class="topbar">
+      <div class="wordmark">CANON</div>
+      <div class="topmeta"><span id="corpusMeta">static scripture field</span><span class="status-dot" id="statusDot"></span><span id="statusMeta">connecting</span></div>
+    </header>
+
+    <main>
+      <section class="hero" id="hero">
+        <div class="hero-inner">
+          <div class="eyebrow">Scripture, measured</div>
+          <h1>Ask scripture.</h1>
+          <div class="hero-copy">
+            Write a question, decision, fear, belief, or claim. CANON measures it against every passage in the Bible and returns the strongest ranked resonance.
+            <strong>No generated answers. Only scripture.</strong>
+          </div>
+
+          <form class="search-box" id="searchForm">
+            <div class="search-row">
+              <input class="search-input" id="queryInput" autocomplete="off" spellcheck="true" placeholder="How do I forgive someone who never apologized?" aria-label="Question for scripture">
+              <button class="search-button" id="searchButton" type="submit">Measure</button>
+            </div>
+            <div class="search-controls">
+              <div class="scope-controls" id="scopeControls">
+                <button class="scope-button active" type="button" data-scope="all">All Scripture</button>
+                <button class="scope-button" type="button" data-scope="old">Old Testament</button>
+                <button class="scope-button" type="button" data-scope="new">New Testament</button>
+                <button class="scope-button" type="button" data-scope="book">Book</button>
+              </div>
+              <select class="book-select" id="bookSelect" aria-label="Bible book" hidden><option value="">Select book</option></select>
+              <div class="search-note">One query vector · permanent field</div>
+            </div>
+          </form>
+          <div class="error-banner" id="errorBanner"></div>
+          <div class="recent" id="recent"></div>
+        </div>
+      </section>
+
+      <section class="results-shell" id="resultsShell">
+        <div class="result-head">
+          <div><div class="result-query-label">Measured against scripture</div><div class="result-query" id="resultQuery"></div></div>
+          <div class="result-meta" id="resultMeta"></div>
+        </div>
+        <div class="primary-wrap" id="primaryWrap"></div>
+        <div class="ranked-wrap">
+          <div class="section-bar">
+            <div class="section-title">Ranked resonance field</div>
+            <div class="layer-tabs" id="layerTabs">
+              <button class="layer-tab active" data-layer="passages">Passages</button>
+              <button class="layer-tab" data-layer="verses">Verses</button>
+              <button class="layer-tab" data-layer="chapters">Chapters</button>
+            </div>
+          </div>
+          <div class="field-stats" id="fieldStats"></div>
+          <div class="ranked-list" id="rankedList"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>CANON · deterministic scripture resonance</span>
+      <span id="footerSource">World English Bible · 66 books · static vectors</span>
+    </footer>
+  </div>
+
+  <aside class="chapter-panel" id="chapterPanel" aria-hidden="true">
+    <div class="chapter-sheet">
+      <div class="chapter-sheet-head"><div class="chapter-title" id="chapterTitle"></div><button class="chapter-close" id="chapterClose">Close</button></div>
+      <div class="chapter-verses" id="chapterVerses"></div>
+    </div>
+  </aside>
+
+<script>
+(() => {
+  const state = {
+    manifest: null,
+    results: null,
+    activeLayer: 'passages',
+    scope: 'all',
+    loading: false,
+    saved: JSON.parse(localStorage.getItem('canon.saved.v1') || '{}'),
+    history: JSON.parse(localStorage.getItem('canon.history.v1') || '[]')
+  };
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    form: $('searchForm'), input: $('queryInput'), button: $('searchButton'), book: $('bookSelect'),
+    error: $('errorBanner'), status: $('statusMeta'), dot: $('statusDot'), corpus: $('corpusMeta'),
+    results: $('resultsShell'), resultQuery: $('resultQuery'), resultMeta: $('resultMeta'), primary: $('primaryWrap'),
+    tabs: $('layerTabs'), stats: $('fieldStats'), list: $('rankedList'), loading: $('loadingLine'), recent: $('recent'),
+    chapterPanel: $('chapterPanel'), chapterTitle: $('chapterTitle'), chapterVerses: $('chapterVerses'), chapterClose: $('chapterClose')
+  };
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  }
+  function score(value) { return Number(value || 0).toFixed(4); }
+  function sigma(value) { const n = Number(value || 0); return `${n >= 0 ? '+' : ''}${n.toFixed(2)}σ`; }
+  function setError(message='') { els.error.textContent = message; els.error.classList.toggle('show', Boolean(message)); }
+  function setLoading(value) {
+    state.loading = value; els.button.disabled = value; els.button.textContent = value ? 'Measuring' : 'Measure'; els.loading.classList.toggle('show', value);
+  }
+  function setStatus(text, ready=false) { els.status.textContent = text; els.dot.classList.toggle('ready', ready); }
+
+  async function jsonFetch(url, options={}) {
+    const response = await fetch(url, options);
+    let payload = null;
+    try { payload = await response.json(); } catch (_) {}
+    if (!response.ok) throw new Error(payload?.detail || `${response.status} ${response.statusText}`);
+    return payload;
+  }
+
+  async function loadManifest() {
+    try {
+      const data = await jsonFetch('/canon/v1/manifest');
+      state.manifest = data;
+      const counts = data.corpus.counts;
+      els.corpus.textContent = `${counts.verses.toLocaleString()} verses · ${counts.passages.toLocaleString()} passages`;
+      setStatus('ready', true);
+      els.book.innerHTML = '<option value="">Select book</option>' + data.books.map(book => `<option>${escapeHtml(book)}</option>`).join('');
+      $('footerSource').textContent = `${data.corpus.translation.name} · 66 books · static vectors`;
+    } catch (error) {
+      setStatus('index required', false);
+      setError(`CANON is not indexed yet. ${error.message}`);
+    }
+  }
+
+  function renderRecent() {
+    const items = state.history.slice(0, 4);
+    if (!items.length) { els.recent.innerHTML = ''; return; }
+    els.recent.innerHTML = `<span class="recent-label">Recent</span>` + items.map(item => `<button type="button" data-query="${escapeHtml(item.query)}">${escapeHtml(item.query)}</button>`).join('');
+    els.recent.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
+      els.input.value = button.dataset.query || ''; els.form.requestSubmit();
+    }));
+  }
+
+  function saveHistory(query) {
+    state.history = [{query, at: Date.now()}, ...state.history.filter(item => item.query !== query)].slice(0, 12);
+    localStorage.setItem('canon.history.v1', JSON.stringify(state.history));
+    renderRecent();
+  }
+
+  function verseRows(record, strongestId=null) {
+    return (record?.verses || []).map(verse => `
+      <div class="verse-row ${verse.id === strongestId ? 'strongest' : ''}">
+        <div class="verse-number">${escapeHtml(verse.number)}</div>
+        <div class="verse-text">${escapeHtml(verse.text)}</div>
+      </div>`).join('');
+  }
+
+  function saveKey(record) { return record?.id || ''; }
+  function isSaved(record) { return Boolean(state.saved[saveKey(record)]); }
+  function toggleSave(record) {
+    const key = saveKey(record); if (!key) return;
+    if (state.saved[key]) delete state.saved[key];
+    else state.saved[key] = {id:key, ref:record.ref, verses:record.verses, score:record.score, saved_at:Date.now()};
+    localStorage.setItem('canon.saved.v1', JSON.stringify(state.saved));
+    renderPrimary();
+  }
+
+  async function shareRecord(record) {
+    const body = `${record.ref}\n\n${(record.verses || []).map(v => `${v.number} ${v.text}`).join('\n')}\n\nCANON resonance ${score(record.score)}`;
+    if (navigator.share) {
+      try { await navigator.share({title:`CANON · ${record.ref}`, text:body}); return; } catch (_) {}
+    }
+    await navigator.clipboard.writeText(body);
+    const button = document.querySelector('[data-action="share"]');
+    if (button) { const old=button.textContent; button.textContent='Copied'; setTimeout(()=>button.textContent=old,1200); }
+  }
+
+  async function openChapter(record) {
+    try {
+      const chapter = await jsonFetch(`/canon/v1/chapter?book=${encodeURIComponent(record.book)}&chapter=${record.chapter}`);
+      els.chapterTitle.textContent = chapter.ref;
+      els.chapterVerses.innerHTML = verseRows(chapter);
+      els.chapterPanel.classList.add('show'); els.chapterPanel.setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
+    } catch (error) { setError(error.message); }
+  }
+  function closeChapter() { els.chapterPanel.classList.remove('show'); els.chapterPanel.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+
+  function renderPrimary() {
+    const record = state.results?.primary;
+    if (!record) { els.primary.innerHTML = ''; return; }
+    const strongestId = record.strongest_verse?.id || null;
+    els.primary.innerHTML = `
+      <article class="primary-grid">
+        <div class="primary-rank"><strong>01</strong>primary passage</div>
+        <div class="primary-body">
+          <div class="primary-top">
+            <div class="primary-ref">${escapeHtml(record.ref)}</div>
+            <div class="primary-score"><strong>${score(record.score)}</strong>resonance<br>${sigma(record.sigma)}</div>
+          </div>
+          <div class="verse-stack">${verseRows(record, strongestId)}</div>
+          <div class="primary-actions">
+            <button class="action-button" data-action="chapter">Read full chapter</button>
+            <button class="action-button ${isSaved(record) ? 'active' : ''}" data-action="save">${isSaved(record) ? 'Saved reading' : 'Save reading'}</button>
+            <button class="action-button" data-action="share">Share passage</button>
+          </div>
+        </div>
+      </article>`;
+    els.primary.querySelector('[data-action="chapter"]').addEventListener('click', () => openChapter(record));
+    els.primary.querySelector('[data-action="save"]').addEventListener('click', () => toggleSave(record));
+    els.primary.querySelector('[data-action="share"]').addEventListener('click', () => shareRecord(record));
+  }
+
+  function renderRanked() {
+    const layer = state.activeLayer;
+    const rows = state.results?.results?.[layer] || [];
+    const stats = state.results?.field_stats?.[layer] || {};
+    els.tabs.querySelectorAll('.layer-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.layer === layer));
+    els.stats.innerHTML = `<span>${Number(stats.count || 0).toLocaleString()} measured</span><span>mean ${score(stats.mean)}</span><span>spread ${score(stats.std)}</span><span>${state.results?.cache === 'hit' ? 'cache hit' : 'exact field scan'}</span>`;
+    if (!rows.length) { els.list.innerHTML = '<div class="empty-field">No scripture matched the selected scope.</div>'; return; }
+    els.list.innerHTML = rows.map((record, index) => {
+      const strongest = record.strongest_verse?.id || null;
+      const subtitle = layer === 'chapters' ? `${record.verse_start}–${record.verse_end} · ${record.testament}` : `${record.section} · ${record.testament}`;
+      return `<details class="ranked-item" ${index === 0 ? 'open' : ''}>
+        <summary class="ranked-summary">
+          <div class="rank-number">${String(record.rank).padStart(2,'0')}</div>
+          <div class="rank-ref">${escapeHtml(record.ref)}<span class="rank-sub">${escapeHtml(subtitle)}</span></div>
+          <div class="rank-score">${score(record.score)}<small>${sigma(record.sigma)}</small></div>
+          <div class="rank-toggle">+</div>
+        </summary>
+        <div class="rank-detail">
+          <div class="verse-stack">${verseRows(record, strongest)}</div>
+          <div class="primary-actions"><button class="action-button" data-chapter-book="${escapeHtml(record.book)}" data-chapter-number="${record.chapter}">Read chapter</button></div>
+        </div>
+      </details>`;
+    }).join('');
+    els.list.querySelectorAll('[data-chapter-book]').forEach(button => button.addEventListener('click', () => openChapter({book:button.dataset.chapterBook,chapter:Number(button.dataset.chapterNumber)})));
+  }
+
+  function renderResults() {
+    const data = state.results; if (!data) return;
+    els.resultQuery.textContent = data.query;
+    const scope = data.scope.book || (data.scope.mode === 'old' ? 'Old Testament' : data.scope.mode === 'new' ? 'New Testament' : 'All Scripture');
+    els.resultMeta.innerHTML = `${escapeHtml(scope)}<br>${escapeHtml(data.translation.name)}<br>${data.cache === 'hit' ? 'cached field' : 'live measurement'}`;
+    renderPrimary(); renderRanked();
+    els.results.classList.add('show');
+    els.results.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  async function performSearch(query) {
+    if (!state.manifest) { setError('CANON index is not ready.'); return; }
+    const payload = {text:query, scope:state.scope, k:50, layers:['passages','verses','chapters']};
+    if (state.scope === 'book') {
+      if (!els.book.value) { setError('Select a Bible book.'); els.book.focus(); return; }
+      payload.book = els.book.value;
+    }
+    setError(''); setLoading(true);
+    try {
+      state.results = await jsonFetch('/canon/v1/search', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      state.activeLayer = 'passages'; saveHistory(query); renderResults();
+    } catch (error) { setError(error.message); }
+    finally { setLoading(false); }
+  }
+
+  els.form.addEventListener('submit', event => {
+    event.preventDefault(); const query = els.input.value.trim(); if (!query || state.loading) return; performSearch(query);
+  });
+  document.querySelectorAll('.scope-button').forEach(button => button.addEventListener('click', () => {
+    state.scope = button.dataset.scope;
+    document.querySelectorAll('.scope-button').forEach(item => item.classList.toggle('active', item === button));
+    els.book.hidden = state.scope !== 'book';
+    if (state.scope === 'book') setTimeout(() => els.book.focus(), 0);
+  }));
+  els.book.addEventListener('change', () => { if (els.book.value) state.scope = 'book'; });
+  els.tabs.querySelectorAll('.layer-tab').forEach(tab => tab.addEventListener('click', () => { state.activeLayer = tab.dataset.layer; renderRanked(); }));
+  els.chapterClose.addEventListener('click', closeChapter);
+  els.chapterPanel.addEventListener('click', event => { if (event.target === els.chapterPanel) closeChapter(); });
+  window.addEventListener('keydown', event => { if (event.key === 'Escape') closeChapter(); });
+
+  function animateField() {
+    const canvas = $('fieldCanvas'), ctx = canvas.getContext('2d');
+    let width=0,height=0,dpr=1,nodes=[];
+    const resize=()=>{
+      dpr=Math.min(devicePixelRatio||1,2); width=innerWidth; height=innerHeight; canvas.width=width*dpr; canvas.height=height*dpr; canvas.style.width=width+'px';canvas.style.height=height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);
+      const count=Math.min(90,Math.max(36,Math.floor(width*height/18000)));
+      nodes=Array.from({length:count},()=>({x:Math.random()*width,y:Math.random()*height,vx:(Math.random()-.5)*.08,vy:(Math.random()-.5)*.08,r:Math.random()*1.2+.3}));
+    };
+    const frame=()=>{
+      ctx.clearRect(0,0,width,height);
+      for(const n of nodes){n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>width)n.vx*=-1;if(n.y<0||n.y>height)n.vy*=-1;ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle='rgba(224,217,198,.28)';ctx.fill();}
+      for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);if(d<110){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(182,164,119,${(1-d/110)*.065})`;ctx.stroke();}}
+      requestAnimationFrame(frame);
+    };
+    addEventListener('resize',resize);resize();frame();
+  }
+
+  renderRecent(); loadManifest(); animateField();
+})();
+</script>
+</body>
+</html>

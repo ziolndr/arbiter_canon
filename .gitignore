@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+source/engwebp_usfm.zip
+source/webp-usfm/
+data/*.jsonl
+data/*.json
+index/*.f32
+index/*.jsonl
+index/*.json
