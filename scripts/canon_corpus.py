@@ -114,16 +114,56 @@ def normalize_space(value: str) -> str:
 
 def strip_usfm(value: str) -> str:
     text = value
-    for marker in BLOCK_MARKERS:
-        text = re.sub(rf"\\{marker}\s.*?\\{marker}\*", " ", text, flags=re.DOTALL)
-    # Word markers carry metadata after |; keep the visible word only.
-    text = re.sub(r"\\w\s+([^|\\]+)(?:\|[^\\]*)?\\w\*", r"\1", text)
-    text = re.sub(r"\\rb\s+([^|\\]+)(?:\|[^\\]*)?\\rb\*", r"\1", text)
-    text = CHAR_MARKER_RE.sub("", text)
-    text = ANY_MARKER_RE.sub("", text)
-    text = text.replace("//", " ")
-    return normalize_space(text)
 
+    for marker in (*BLOCK_MARKERS, "fig"):
+        text = re.sub(
+            rf"\\\+?{marker}\b.*?\\\+?{marker}\*",
+            " ",
+            text,
+            flags=re.DOTALL,
+        )
+
+    wrapper_re = re.compile(
+        r"\\\+?(?P<marker>w|wh|wa|wg|rb|jmp)\s+"
+        r"(?P<visible>[^|\\]*?)"
+        r"(?:\|[^\\]*?)?"
+        r"\\\+?(?P=marker)\*",
+        flags=re.DOTALL,
+    )
+
+    while True:
+        cleaned = wrapper_re.sub(
+            lambda match: match.group("visible"),
+            text,
+        )
+        if cleaned == text:
+            break
+        text = cleaned
+
+    text = re.sub(
+        r"\|(?:[A-Za-z][A-Za-z0-9-]*=(?:\"[^\"]*\"|'[^']*'|[^\s|\\]+)\s*)+",
+        " ",
+        text,
+    )
+
+    text = re.sub(
+        r"\\\+?[A-Za-z0-9][A-Za-z0-9-]*\*?(?:\s+)?",
+        "",
+        text,
+    )
+
+    text = text.replace("//", " ")
+    text = normalize_space(text)
+
+    if re.search(
+        r"\\\+?[A-Za-z0-9][A-Za-z0-9-]*|\|[A-Za-z][A-Za-z0-9-]*=",
+        text,
+    ):
+        raise ValueError(
+            f"Residual USFM markup after cleanup: {text[:200]!r}"
+        )
+
+    return text
 
 @dataclass(frozen=True)
 class Verse:
@@ -265,6 +305,14 @@ def validate_verses(verses: list[Verse]) -> None:
     seen: set[tuple[str, int, int]] = set()
     chapter_counts: dict[str, set[int]] = defaultdict(set)
     for verse in verses:
+        if re.search(
+            r"\\\+?[A-Za-z0-9][A-Za-z0-9-]*|\|[A-Za-z][A-Za-z0-9-]*=",
+            verse.text,
+        ):
+            raise ValueError(
+                f"Residual USFM markup in canonical text: "
+                f"{verse.ref}: {verse.text[:160]!r}"
+            )
         key = (verse.code, verse.chapter, verse.verse)
         if key in seen:
             raise ValueError(f"Duplicate verse: {verse.ref}")

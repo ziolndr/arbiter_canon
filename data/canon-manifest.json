@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "corpus_version": "webp-9aef6aaa53e0-w5s2",
-  "generated_at": "2026-07-21T05:31:23.298725+00:00",
+  "corpus_version": "webp-d82baf0b8175-w5s2",
+  "generated_at": "2026-07-21T16:59:20.155693+00:00",
   "translation": {
     "id": "WEBP",
     "name": "World English Bible (Protestant)",
@@ -11,7 +11,7 @@
   "source": {
     "url": "https://ebible.org/Scriptures/engwebp_usfm.zip",
     "archive_sha256": "4253589697dc6b5e92695655f2f28792d50e7be7b9c8e212af4f4bd18e866c3b",
-    "text_fingerprint_sha256": "9aef6aaa53e05c72a2c27d9ac866893287b884d64b42dd515d94e28b161870df"
+    "text_fingerprint_sha256": "d82baf0b8175ab3f11f4d6f445be6a1e74579d2652eeab93671dd807cdfe8079"
   },
   "construction": {
     "passage_window": 5,
@@ -28,17 +28,17 @@
     "verses": {
       "path": "canon-verses.jsonl",
       "count": 31098,
-      "sha256": "95f3e071523b554c3b766902ffc3a3bd468b66f1e95fe0a93c75d96da7e200b0"
+      "sha256": "50bf0e3abe60634fad4bebc2a8130de35592a71b8b9e93be6bbbdc348ae4af59"
     },
     "passages": {
       "path": "canon-passages.jsonl",
       "count": 14061,
-      "sha256": "f077c0d4436c81c1fa689f2f9679c35f8caead93c03355c8969e9b74f155f1f8"
+      "sha256": "abb021b7b9e4416f4447b911c7e80c1738878aee8bd3381a6dc556f935e7a6e1"
     },
     "chapters": {
       "path": "canon-chapters.jsonl",
       "count": 1189,
-      "sha256": "5ca1b1445dbf6198fba4a866bd6106f25bf5edeac9cbaea59679f49cd44d7d8a"
+      "sha256": "f85f0f5ed4362ea3256dc2abf46a6854b385d956bb2eb6390075cb98ac0564a4"
     }
   },
   "book_order": [

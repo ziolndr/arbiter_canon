@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "layer": "chapter",
-  "corpus_version": "webp-9aef6aaa53e0-w5s2",
+  "corpus_version": "webp-d82baf0b8175-w5s2",
   "count": 1189,
   "dim": 72,
   "dtype": "float32",
   "use_freq": true,
-  "generated_at": "2026-07-21T06:10:22.830929+00:00",
+  "generated_at": "2026-07-21T17:37:13.849900+00:00",
   "files": {
     "vectors": "canon-chapters.vectors.f32",
     "norms": "canon-chapters.norms.f32",

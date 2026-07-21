@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "layer": "verse",
-  "corpus_version": "webp-9aef6aaa53e0-w5s2",
+  "corpus_version": "webp-d82baf0b8175-w5s2",
   "count": 31098,
   "dim": 72,
   "dtype": "float32",
   "use_freq": true,
-  "generated_at": "2026-07-21T05:45:38.943767+00:00",
+  "generated_at": "2026-07-21T17:08:05.252238+00:00",
   "files": {
     "vectors": "canon-verses.vectors.f32",
     "norms": "canon-verses.norms.f32",
