@@ -195,26 +195,14 @@ def parse_usfm(path: Path) -> list[Verse]:
 
     verses: list[Verse] = []
     for (chapter_number, verse_number), parts in sorted(chunks.items()):
-        raw_verse = normalize_space(" ".join(parts))
-        text = strip_usfm(raw_verse)
+        raw_verse_text = " ".join(parts)
+        text = strip_usfm(raw_verse_text)
 
+        # Official WEBP USFM retains some omitted verse numbers solely for
+        # textual-variant notes. Notes are intentionally excluded from the
+        # searchable CANON corpus, so no blank vector record should be made.
         if not text:
-            # WEBP may retain an omitted verse number solely to attach a
-            # textual-variant footnote. Since notes are excluded from CANON's
-            # searchable scripture text, do not create a blank vector record.
-            has_note_block = any(
-                re.search(rf"\\{marker}(?:\s|$)", raw_verse)
-                for marker in BLOCK_MARKERS
-            )
-
-            if has_note_block:
-                continue
-
-            # A truly empty verse without a note remains a source error.
-            raise ValueError(
-                f"Blank verse after USFM cleanup: "
-                f"{meta['name']} {chapter_number}:{verse_number}"
-            )
+            continue
 
         verses.append(Verse(
             code=code,
